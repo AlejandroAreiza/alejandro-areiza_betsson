@@ -4,9 +4,8 @@ from business.screens import AppiumBy, MobileDriver
 class ProductsScreen:
 
     SCREEN_TITLE = (AppiumBy.XPATH, '//android.widget.TextView[@text="PRODUCTS"]')
-    CART_ICON = (AppiumBy.ACCESSIBILITY_ID, "test-Cart")
     PRODUCTS_CONTAINER = (AppiumBy.ACCESSIBILITY_ID, "test-PRODUCTS")
-    CART_BADGE = (AppiumBy.XPATH, '//android.view.ViewGroup[@content-desc="test-Cart"]/android.widget.TextView')
+    CART_BADGE = (AppiumBy.ACCESSIBILITY_ID, "test-Cart")
 
     def __init__(self, driver: MobileDriver):
         self.driver = driver
@@ -17,7 +16,7 @@ class ProductsScreen:
 
     def is_cart_icon_visible(self) -> bool:
         """Check if cart icon is visible."""
-        return self.driver.is_element_visible(self.CART_ICON)
+        return self.driver.is_element_visible(self.CART_BADGE)
 
     def is_products_catalog_visible(self) -> bool:
         """Check if products catalog container is visible."""
