@@ -21,28 +21,26 @@ def before_all(context):
     logger.info("=" * 80)
     logger.info("STARTING TEST SUITE")
     try:
-        subprocess.run(["nox", "-s", "start_appium"], check=True)
-        logger.info("Appium server started")
-
-        # Load capabilities to check headless setting
         capabilities = DataProvider.get_data(
             desired_capabilities_path, DesiredCapabilitiesDto
         )
+        capabilities.app = str((app_folder / capabilities.app).absolute())
 
-        # Start emulator with headless flag based on capabilities
+        # Start Appium
+        subprocess.run(["nox", "-s", "start_appium"], check=True)
+        logger.info("Appium server started")
+
+        # Start Emulator
         emulator_cmd = ["nox", "-s", "start_emulator"]
         if hasattr(capabilities, 'headless') and capabilities.headless:
             emulator_cmd.extend(["--", "--headless"])
-
         subprocess.run(emulator_cmd, check=True)
         logger.info("Android emulator started")
-
-        capabilities.app = str((app_folder / capabilities.app).absolute())
+        
         context.driver = MobileDriverFactory.create_driver(capabilities)
     except Exception as e:
         logger.error(f"Setup failed: {e}")
         raise
-
 
 def before_scenario(context, scenario):
     logger.info("_" * 80)
@@ -62,7 +60,6 @@ def after_scenario(context, scenario):
 
 
 def after_all(context):
-    """Cleanup after all tests - ALWAYS runs."""
 
     # Quit driver
     if hasattr(context, "driver") and context.driver:
