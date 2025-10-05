@@ -8,5 +8,6 @@
   "noReset": false,
   "fullReset": false,
   "newCommandTimeout": 300,
-  "autoGrantPermissions": true
+  "autoGrantPermissions": true,
+  "headless": false
 }

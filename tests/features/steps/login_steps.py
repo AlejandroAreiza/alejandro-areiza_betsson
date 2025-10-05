@@ -5,16 +5,21 @@ from tests.features.steps import assert_that, given, then, when
 def _swap_labs(context) -> SwapLabs:
     return context.swap_labs_app
 
-
-@given("the SwapLabsApp")
-def step_launch_app(context):
+@given("the Swag Labs app is installed and launched")
+def step_launch_swag_labs_app(context):
     context.swap_labs_app = SwapLabs(context.driver)
 
+@given("I am on the login screen")
+@then("I am on the login screen")
+def step_verify_login_screen(context):
+    is_login_visible = _swap_labs(context).login_screen.is_login_screen_visible()
+    assert_that(is_login_visible).is_true()
 
-@when("I get the current activity")
-def step_get_current_activity(context):
-    context.app_title = _swap_labs(context).get_current_activity()
+@when('I login with username "{user_name}" and password "{user_password}"')
+def step_login_with_credentials(context, user_name, user_password):
+    _swap_labs(context).login_screen.login(user_name, user_password)
 
-@then('the activity name should be "{activity_name}"')
-def step_then_activity_name(context, activity_name):
-    assert_that(context.app_title).is_not_none().is_equal_to(activity_name)
+@then("the login button should be visible")
+def step_verify_login_button_visible(context):
+    is_button_visible = _swap_labs(context).login_screen.is_login_button_visible()
+    assert_that(is_button_visible).is_true()

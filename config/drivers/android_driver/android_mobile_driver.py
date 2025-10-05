@@ -131,15 +131,15 @@ class AndroidMobileDriver(MobileDriver):
     def is_element_visible(self, locator):
         """Check if element is visible."""
         try:
-            element = self.find_element(locator)
-            is_visible = element.is_displayed()
-            self.logger.info(f"Element {locator} visibility: {is_visible}")
-            return is_visible
+            element = self._wait.until(EC.visibility_of_element_located(locator))
+            self.logger.info(f"Element {locator} is visible")
+            return True
+        except TimeoutException:
+            self.logger.info(f"Element {locator} is not visible (timeout)")
+            return False
         except Exception as e:
-            self.logger.error(
-                f"Failed to check visibility of element {locator}: {e}", exc_info=True
-            )
-            raise
+            self.logger.warning(f"Error checking visibility of element {locator}: {e}")
+            return False
 
     def click(self, locator):
         """Click element with explicit wait for clickable."""
@@ -157,10 +157,10 @@ class AndroidMobileDriver(MobileDriver):
             element = self._wait.until(EC.element_to_be_clickable(locator))
             element.clear()
             element.send_keys(text)
-            self.logger.info(f"Typed text into: {locator}")
+            self.logger.info(f"Typed '{text}' into: {locator}")
         except Exception as e:
             self.logger.error(
-                f"Failed to type text into element {locator}: {e}", exc_info=True
+                f"Failed to type '{text}' into element {locator}: {e}", exc_info=True
             )
             raise
 

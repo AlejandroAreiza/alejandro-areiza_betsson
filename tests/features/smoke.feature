@@ -1,14 +1,9 @@
-Feature: Smoke Test - Environment Setup Verification
+Feature: Smoke Test - Application Launch Verification
   As a tester
-  I want to verify the test environment is set up correctly
-  So that I can ensure all components are working
+  I want to verify the application launches correctly
+  So that I can ensure the test environment is ready for testing
 
-  Scenario Outline: Verify current activity is correct
-    Given the SwapLabsApp
-    When I get the current activity
-    Then the activity name should be "<activity_name>"
-
-    Examples:
-    | activity_name     |
-    | .MainActivity     |
-    | .ProductActivity  |
+  Scenario: Verify login screen is displayed on app launch
+    Given the Swag Labs app is installed and launched
+    Then I am on the login screen
+    And the login button should be visible
