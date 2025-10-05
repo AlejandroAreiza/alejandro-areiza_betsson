@@ -1,5 +1,5 @@
 from business.screens.swap_labs import SwapLabs
-from tests.features.steps import assert_that, then
+from tests.features.steps import assert_that, given, then, when, allure
 
 
 def _swap_labs(context) -> SwapLabs:
@@ -31,3 +31,9 @@ def step_verify_screen_title(context, title_text):
 def step_verify_cart_icon_visible(context):
     is_cart_visible = _swap_labs(context).products_screen.is_cart_icon_visible()
     assert_that(is_cart_visible).is_true()
+
+
+@when('I add "{product_name}" to the cart')
+@allure.step("Add '{product_name}' to the cart")
+def step_add_product_to_cart(context, product_name):
+    _swap_labs(context).products_screen.add_product_to_cart(product_name)

@@ -2,7 +2,6 @@ from config.utils import Path, datetime, logging, sys
 
 
 class ColoredFormatter(logging.Formatter):
-    """Custom formatter with colors for different log levels."""
 
     COLORS = {
         "DEBUG": "\033[36m",  # Cyan
@@ -17,37 +16,22 @@ class ColoredFormatter(logging.Formatter):
         log_color = self.COLORS.get(record.levelname, self.COLORS["RESET"])
         reset_color = self.COLORS["RESET"]
 
-        # Create a copy to avoid modifying the original record
         levelname = record.levelname
         message = record.getMessage()
 
-        # Apply color formatting
         colored_levelname = f"{log_color}{levelname}{reset_color}"
         colored_message = f"{log_color}{message}{reset_color}"
 
-        # Format the output
         return f"{colored_levelname} - {colored_message}"
 
 
 class Logger:
-    """Custom logger utility for test automation framework."""
-
     _loggers = {}
     _log_file_path = None
     _initialized = False
 
     @classmethod
     def get_logger(cls, name: str = __name__, log_file: bool = True) -> logging.Logger:
-        """
-        Get or create a logger instance.
-
-        Args:
-            name: Logger name (usually __name__ of the calling module)
-            log_file: Whether to write logs to file
-
-        Returns:
-            Configured logger instance
-        """
         if name in cls._loggers:
             return cls._loggers[name]
 

@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from config.drivers.mobile_driver import MobileDriver
+from config.dto import Direction
 from config.dto.desired_capabilities_dto import DesiredCapabilitiesDto
 from config.utils.logger import Logger
 
@@ -19,4 +20,5 @@ __all__ = [
     "MobileDriver",
     "DesiredCapabilitiesDto",
     "Logger",
+    "Direction",
 ]

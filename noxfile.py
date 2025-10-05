@@ -432,29 +432,25 @@ def run_test(session):
 
     Usage:
         nox -s run_test                                    # Run all tests
-        nox -s run_test -- basic                           # Run basic.feature
-        nox -s run_test -- basic "Launch app"              # Run specific scenario by name
-        nox -s run_test -- login "Successful login"        # Run specific scenario in login.feature
+        nox -s run_test -- user_authentication.feature     # Run specific feature file
+        nox -s run_test -- -n "Login attempt"              # Run specific scenario by name
+        nox -s run_test -- --tags=@smoke                   # Run tests with specific tags
     """
     is_windows = platform.system() == "Windows"
     behave_cmd = ".venv\\Scripts\\behave.exe" if is_windows else ".venv/bin/behave"
 
     if session.posargs:
-        # Get test name from arguments
-        test_name = session.posargs[0]
-
-        # Add .feature extension if not present
-        if not test_name.endswith('.feature'):
-            test_name = f"{test_name}.feature"
-
-        test_path = f"tests/features/{test_name}"
-
-        # Check if scenario name is provided
-        if len(session.posargs) > 1:
-            scenario_name = session.posargs[1]
-            print(f"Running scenario '{scenario_name}' in {test_path}")
-            session.run(behave_cmd, test_path, "-n", scenario_name, "-v", "--no-capture")
+        if session.posargs[0].startswith('-'):
+            print(f"Running tests with parameters: {' '.join(session.posargs)}")
+            session.run(behave_cmd, "tests/features/", *session.posargs, "-v", "--no-capture")
         else:
+            # Assume it's a feature file name
+            test_name = session.posargs[0]
+
+            if not test_name.endswith('.feature'):
+                test_name = f"{test_name}.feature"
+
+            test_path = f"tests/features/{test_name}"
             print(f"Running test: {test_path}")
             session.run(behave_cmd, test_path, "-v", "--no-capture")
     else:

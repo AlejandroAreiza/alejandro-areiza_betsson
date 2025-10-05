@@ -1,8 +1,7 @@
-import time
-
 from config.drivers.android_driver import (
     EC,
     DesiredCapabilitiesDto,
+    Direction,
     Logger,
     MobileDriver,
     TimeoutException,
@@ -14,7 +13,6 @@ from config.drivers.android_driver import (
 
 
 class AndroidMobileDriver(MobileDriver):
-    """Android mobile driver implementation using Appium."""
 
     def __init__(
         self,
@@ -59,11 +57,9 @@ class AndroidMobileDriver(MobileDriver):
 
     @property
     def driver(self) -> WebDriver:
-        """Get the mobile driver instance."""
         return self._mobile_driver
 
     def quit(self):
-        """Quit the driver."""
         try:
             if self._mobile_driver:
                 self._mobile_driver.quit()
@@ -74,7 +70,6 @@ class AndroidMobileDriver(MobileDriver):
             raise
 
     def reset(self):
-        """Reset the app to initial state by terminating and reactivating."""
         try:
             if self._mobile_driver:
                 app_id = self._mobile_driver.capabilities.get("appPackage")
@@ -84,28 +79,7 @@ class AndroidMobileDriver(MobileDriver):
             self.logger.error(f"Failed to reset app: {e}", exc_info=True)
             raise
 
-    def get_current_activity(self) -> str:
-        """Get the current activity of the app."""
-        try:
-            time.sleep(3)
-            activity = self._mobile_driver.current_activity
-            self.logger.info(f"Current activity: {activity}")
-            return activity
-        except Exception as e:
-            self.logger.error(f"Failed to get current activity: {e}", exc_info=True)
-            raise
-
-    def navigate_to(self, url):
-        """Navigate to URL."""
-        try:
-            self._mobile_driver.get(url)
-            self.logger.info(f"Navigated to: {url}")
-        except Exception as e:
-            self.logger.error(f"Failed to navigate to URL {url}: {e}", exc_info=True)
-            raise
-
     def find_element(self, locator):
-        """Find element by locator with fluent wait for visibility."""
         try:
             self.element = self._wait.until(EC.visibility_of_element_located(locator))
             self.logger.info(f"Element found and visible: {locator}")
@@ -120,7 +94,6 @@ class AndroidMobileDriver(MobileDriver):
             raise
 
     def find_elements(self, locator):
-        """Find elements by locator."""
         try:
             elements = self._mobile_driver.find_elements(*locator)
             self.logger.info(f"Found {len(elements)} elements with locator: {locator}")
@@ -130,7 +103,6 @@ class AndroidMobileDriver(MobileDriver):
             raise
 
     def is_element_visible(self, locator):
-        """Check if element is visible."""
         try:
             self._wait.until(EC.visibility_of_element_located(locator))
             self.logger.info(f"Element {locator} is visible")
@@ -143,7 +115,6 @@ class AndroidMobileDriver(MobileDriver):
             return False
 
     def click(self, locator):
-        """Click element with explicit wait for clickable."""
         try:
             element = self._wait.until(EC.element_to_be_clickable(locator))
             element.click()
@@ -153,7 +124,6 @@ class AndroidMobileDriver(MobileDriver):
             raise
 
     def type_text(self, locator, text):
-        """Type text into element with explicit wait for clickable (editable)."""
         try:
             element = self._wait.until(EC.element_to_be_clickable(locator))
             element.clear()
@@ -166,7 +136,6 @@ class AndroidMobileDriver(MobileDriver):
             raise
 
     def get_text(self, locator):
-        """Get text from element with explicit wait for visibility."""
         try:
             element = self._wait.until(EC.visibility_of_element_located(locator))
             text = element.text
@@ -178,15 +147,21 @@ class AndroidMobileDriver(MobileDriver):
             )
             raise
 
-    def wait_until_page_load(self, page_title):
-        """Wait until page loads."""
+    def swipe(self, locator, direction: Direction):
         try:
-            self.logger.info(f"Waiting for page to load: {page_title}")
-            # Implementation depends on how you want to verify page load
-            # This is a placeholder
-            self.logger.info(f"Page loaded: {page_title}")
+            element = self._wait.until(EC.visibility_of_element_located(locator))
+            self._mobile_driver.execute_script(
+                "mobile: swipeGesture",
+                {
+                    "elementId": element.id,
+                    "direction": direction.value,
+                    "percent": 0.75,
+                },
+            )
+            self.logger.info(f"Swiped {direction.value} on element: {locator}")
         except Exception as e:
             self.logger.error(
-                f"Failed waiting for page {page_title}: {e}", exc_info=True
+                f"Failed to swipe {direction.value} on element {locator}: {e}",
+                exc_info=True,
             )
             raise

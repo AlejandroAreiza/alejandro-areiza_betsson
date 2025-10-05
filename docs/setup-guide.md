@@ -221,12 +221,6 @@ nox -s start_emulator -- --headless
 nox -s stop_emulator
 ```
 
-### Verify Emulator is Running
-
-```bash
-adb devices  # Should list your emulator
-```
-
 ---
 
 ## Appium Server Configuration
@@ -269,11 +263,11 @@ Edit `config/config_files/desired_capabilities.json` to configure your app setti
 **Make sure the `deviceName` in your desired capabilities matches your emulator name.**
 
 **Template Android Configuration:**
-```json
+```bash
 {
   "platformName": "Android",
   "automationName": "UiAutomator2",
-  "deviceName": "test_pixel_35",
+  "deviceName": "<deviceName>",
   "app": "Android.SauceLabs.Mobile.Sample.app.2.7.1.apk",
   "appPackage": "com.swaglabsmobileapp",
   "appActivity": "com.swaglabsmobileapp.MainActivity",
@@ -281,7 +275,7 @@ Edit `config/config_files/desired_capabilities.json` to configure your app setti
   "fullReset": false,
   "newCommandTimeout": 300,
   "autoGrantPermissions": true,
-  "headless": false
+  "headless": true
 }
 ```
 
@@ -291,7 +285,7 @@ Edit `config/config_files/desired_capabilities.json` to configure your app setti
 |-----------|-------------|---------|
 | `platformName` | Target platform | `"Android"` or `"iOS"` |
 | `automationName` | Automation engine | `"UiAutomator2"` (Android), `"XCUITest"` (iOS) |
-| `deviceName` | Emulator/device name (must match your emulator) | `"test_pixel_35"`|
+| `deviceName` | Emulator/device name (must match your emulator name) | `"test_pixel_35"`|
 | `app` | place your APK/IPA in app folder| `"app.apk"` |
 | `appPackage` | Android app package ID | `"com.swaglabsmobileapp"` |
 | `appActivity` | Main activity to launch | `"com.swaglabsmobileapp.MainActivity"` |

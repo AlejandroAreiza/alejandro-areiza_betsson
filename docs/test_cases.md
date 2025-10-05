@@ -58,7 +58,6 @@ Feature: User Authentication - Negative Scenarios
     When I login with username "<user_name>" and password "<user_password>"
     Then I should see an error message
     And the error message should contain "<error_text>"
-    And I should remain on the login screen
 
     Examples:
       | user_name       | user_password | error_text                                                      |
@@ -108,10 +107,6 @@ Feature: Checkout Process - End to End
     Then I should see an order confirmation popup
     And the popup should display "THANK YOU FOR YOUR ORDER"
 
-    When I close the confirmation popup
-    Then the cart badge should show be empty
-    And my cart should be empty
-
     Examples:
       | user_name     | user_password | product_1           | product_2             | first_name | last_name | zip_code |
       | standard_user | secret_sauce  | Sauce Labs Backpack | Sauce Labs Bike Light | John       | Doe       | 12345    |
@@ -145,11 +140,7 @@ Feature: Checkout Process - End to End
     
     When I remove all products from checkout
     And I tap the "Finish" button
-    Then I should see an order failed popup
-
-    When I close the failed popup
-    Then the cart badge should be empty
-    And my cart should be empty
+    Then I should see an incomplete order popup
 
     Examples:
       | user_name     | user_password | product_1           | product_2           | first_name | last_name | zip_code |
