@@ -2,7 +2,22 @@ import nox
 import os
 import platform
 import sys
+import time
 from pathlib import Path
+from urllib.request import urlopen
+from urllib.error import URLError
+
+
+def wait_for_appium(max_retries=10, delay=1):
+    """Wait for Appium server to be ready by checking status endpoint."""
+    for _ in range(max_retries):
+        try:
+            response = urlopen("http://127.0.0.1:4723/status", timeout=2)
+            if response.status == 200:
+                return True
+        except (URLError, Exception):
+            time.sleep(delay)
+    return False
 
 
 @nox.session(python=False)
@@ -264,8 +279,6 @@ def stop_emulator(session):
 @nox.session(python=False)
 def start_appium(session):
     """Start Appium server."""
-    import time
-
     print("=" * 40)
     print("Starting Appium Server...")
     print("=" * 40)
@@ -273,21 +286,11 @@ def start_appium(session):
 
     is_windows = platform.system() == "Windows"
 
-    # Check if Appium is already running
-    if is_windows:
-        result = session.run(
-            "powershell", "-Command",
-            "Get-Process | Where-Object { $_.ProcessName -like '*appium*' -or $_.CommandLine -like '*appium*' }",
-            silent=True, external=True, success_codes=[0, 1]
-        )
-    else:
-        result = session.run(
-            "pgrep", "-f", "appium",
-            silent=True, external=True, success_codes=[0, 1]
-        )
-
-    if result and result.strip():
+    # Check if Appium is already running by checking status endpoint
+    print("Checking if Appium is already running...")
+    if wait_for_appium(max_retries=1, delay=0):
         print("✅ Appium server already running!")
+        print("   URL: http://127.0.0.1:4723")
         print("To stop it, run: nox -s stop_appium")
         return
 
@@ -295,9 +298,14 @@ def start_appium(session):
     Path("reports/logs").mkdir(parents=True, exist_ok=True)
 
     if is_windows:
+        # Create a batch file to run Appium with proper output redirection
+        batch_content = '@echo off\nappium > reports\\logs\\appium.log 2>&1'
+        batch_file = Path("reports/logs/start_appium.bat")
+        batch_file.write_text(batch_content)
+
         session.run(
             "powershell", "-Command",
-            "Start-Process appium -RedirectStandardOutput reports\\logs\\appium.log -RedirectStandardError reports\\logs\\appium.log -WindowStyle Hidden",
+            f"Start-Process -FilePath '{batch_file.absolute()}' -WindowStyle Hidden",
             external=True, silent=True
         )
     else:
@@ -307,22 +315,9 @@ def start_appium(session):
             external=True, silent=True
         )
 
-    time.sleep(3)
-
-    # Verify Appium started
-    if is_windows:
-        result = session.run(
-            "powershell", "-Command",
-            "Get-Process | Where-Object { $_.ProcessName -like '*appium*' }",
-            silent=True, external=True, success_codes=[0, 1]
-        )
-    else:
-        result = session.run(
-            "pgrep", "-f", "appium",
-            silent=True, external=True, success_codes=[0, 1]
-        )
-
-    if result and result.strip():
+    # Verify Appium started by checking status endpoint
+    print("Waiting for Appium server to be ready...")
+    if wait_for_appium():
         print()
         print("✅ Appium server started successfully!")
         print("   URL: http://127.0.0.1:4723")

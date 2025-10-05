@@ -259,21 +259,29 @@ business/app/Android.SauceLabs.Mobile.Sample.app.2.7.1.apk
 
 ### Desired Capabilities
 
-Edit `drivers/desired_capabilities.json` to configure your app settings.
+Edit `config/config_files/desired_capabilities.json` to configure your app settings.
+
+**⚠️ Important:** You have two options for creating an emulator:
+
+1. **Use nox command (recommended):** `nox -s create_emulator` creates `test_pixel_35`
+2. **Create your own emulator:** Follow [Android Studio guide](https://developer.android.com/studio/run/managing-avds)
+
+**Make sure the `deviceName` in your desired capabilities matches your emulator name.**
 
 **Template Android Configuration:**
 ```json
 {
   "platformName": "Android",
   "automationName": "UiAutomator2",
-  "deviceName": "<emulator_name>",
-  "app": "app.apk",
-  "appPackage": "com.yourapp.package",
-  "appActivity": "com.yourapp.MainActivity",
+  "deviceName": "test_pixel_35",
+  "app": "Android.SauceLabs.Mobile.Sample.app.2.7.1.apk",
+  "appPackage": "com.swaglabsmobileapp",
+  "appActivity": "com.swaglabsmobileapp.MainActivity",
   "noReset": false,
   "fullReset": false,
   "newCommandTimeout": 300,
-  "autoGrantPermissions": true
+  "autoGrantPermissions": true,
+  "headless": false
 }
 ```
 
@@ -283,7 +291,7 @@ Edit `drivers/desired_capabilities.json` to configure your app settings.
 |-----------|-------------|---------|
 | `platformName` | Target platform | `"Android"` or `"iOS"` |
 | `automationName` | Automation engine | `"UiAutomator2"` (Android), `"XCUITest"` (iOS) |
-| `deviceName` | Emulator/device name | `"test_pixel_35"`|
+| `deviceName` | Emulator/device name (must match your emulator) | `"test_pixel_35"`|
 | `app` | place your APK/IPA in app folder| `"app.apk"` |
 | `appPackage` | Android app package ID | `"com.swaglabsmobileapp"` |
 | `appActivity` | Main activity to launch | `"com.swaglabsmobileapp.MainActivity"` |
@@ -291,6 +299,7 @@ Edit `drivers/desired_capabilities.json` to configure your app settings.
 | `fullReset` | Uninstall app after session | `false` or `true` |
 | `newCommandTimeout` | Session timeout (seconds) | `300` |
 | `autoGrantPermissions` | Auto-grant app permissions | `true` |
+| `headless` | Run emulator without GUI (headless mode) | `false` or `true` |
 
 ---
 
