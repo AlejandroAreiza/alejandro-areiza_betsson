@@ -15,7 +15,9 @@ def step_verify_navigation_to_screen(context, screen_name):
 
 @then("I should see the products catalog")
 def step_verify_products_catalog_visible(context):
-    is_catalog_visible = _swap_labs(context).products_screen.is_products_catalog_visible()
+    is_catalog_visible = _swap_labs(
+        context
+    ).products_screen.is_products_catalog_visible()
     assert_that(is_catalog_visible).is_true()
 
 

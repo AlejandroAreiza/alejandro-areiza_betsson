@@ -104,6 +104,9 @@ stdout_capture = false
 stderr_capture = false
 log_capture = false
 logging_level = "INFO"
+paths = ["tests/features"]
+format = ["allure_behave.formatter:AllureFormatter"]
+outfiles = ["reports/allure-results"]
 
 [tool.behave.userdata]
 browser = "android"

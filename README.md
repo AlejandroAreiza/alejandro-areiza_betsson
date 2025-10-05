@@ -93,6 +93,38 @@ nox -s clean         # Clean environent and reports
 
 Test reports are generated in `reports/` after each run
 
+### Bonus: Allure Reports (Optional)
+
+For enhanced reporting with interactive dashboards, charts, and test history:
+
+**1. Install Allure CLI:**
+```bash
+# macOS
+brew install allure
+
+# Windows
+scoop install allure
+```
+
+**2. Generate and view reports:**
+```bash
+# Run tests (generates allure-results)
+nox -s run_test
+
+# Generate static HTML report
+nox -s allure_generate
+
+# Auto-generate and serve report (opens in browser)
+nox -s allure_serve
+```
+
+**Features:**
+- Interactive test execution timeline
+- Step-by-step test breakdown with Allure decorators
+- Automatic failure screenshots
+- Test history and trends
+- Detailed error stack traces
+
 ---
 
 ## Author

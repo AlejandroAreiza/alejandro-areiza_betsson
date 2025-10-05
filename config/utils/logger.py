@@ -5,17 +5,17 @@ class ColoredFormatter(logging.Formatter):
     """Custom formatter with colors for different log levels."""
 
     COLORS = {
-        'DEBUG': '\033[36m',      # Cyan
-        'INFO': '\033[32m',       # Green
-        'WARNING': '\033[33m',    # Yellow
-        'ERROR': '\033[31m',      # Red
-        'CRITICAL': '\033[35m',   # Magenta
-        'RESET': '\033[0m'        # Reset
+        "DEBUG": "\033[36m",  # Cyan
+        "INFO": "\033[32m",  # Green
+        "WARNING": "\033[33m",  # Yellow
+        "ERROR": "\033[31m",  # Red
+        "CRITICAL": "\033[35m",  # Magenta
+        "RESET": "\033[0m",  # Reset
     }
 
     def format(self, record):
-        log_color = self.COLORS.get(record.levelname, self.COLORS['RESET'])
-        reset_color = self.COLORS['RESET']
+        log_color = self.COLORS.get(record.levelname, self.COLORS["RESET"])
+        reset_color = self.COLORS["RESET"]
 
         # Create a copy to avoid modifying the original record
         levelname = record.levelname
