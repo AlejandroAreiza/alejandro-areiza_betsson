@@ -463,6 +463,56 @@ def run_test(session):
 
 
 @nox.session(python=False)
+def allure_serve(session):
+    """Generate and serve Allure report from test results."""
+    print("=" * 40)
+    print("Generating and Serving Allure Report...")
+    print("=" * 40)
+    print()
+
+    allure_results = "reports/allure-results"
+
+    if not Path(allure_results).exists():
+        print(f"❌ No Allure results found at {allure_results}")
+        print("Run tests first: nox -s run_test")
+        session.error("Allure results not found")
+
+    print(f"📊 Generating report from {allure_results}...")
+    print()
+    print("Starting Allure server...")
+    print("Report will open in your browser automatically")
+    print("Press Ctrl+C to stop the server")
+    print()
+
+    session.run("allure", "serve", allure_results, external=True)
+
+@nox.session(python=False)
+def allure_generate(session):
+    """Generate static Allure report."""
+    print("=" * 40)
+    print("Generating Static Allure Report...")
+    print("=" * 40)
+    print()
+
+    allure_results = "reports/allure-results"
+    allure_report = "reports/allure-report"
+
+    if not Path(allure_results).exists():
+        print(f"❌ No Allure results found at {allure_results}")
+        print("Run tests first: nox -s run_test")
+        session.error("Allure results not found")
+
+    print(f"📊 Generating report from {allure_results}...")
+    session.run("allure", "generate", allure_results, "-o", allure_report, "--clean", external=True)
+    print()
+    print(f"✅ Report generated at {allure_report}")
+    print()
+    print("To view the report, run:")
+    print(f"  allure open {allure_report}")
+    print("Or open:")
+    print(f"  {Path(allure_report).absolute()}/index.html")
+
+@nox.session(python=False)
 def clean(session):
     """Clean the environment, removes reports and logs."""
     import shutil

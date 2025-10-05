@@ -1,4 +1,5 @@
 import time
+
 from config.drivers.android_driver import (
     EC,
     DesiredCapabilitiesDto,

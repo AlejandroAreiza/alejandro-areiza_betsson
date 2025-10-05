@@ -9,5 +9,5 @@
   "fullReset": false,
   "newCommandTimeout": 300,
   "autoGrantPermissions": true,
-  "headless": false
+  "headless": true
 }

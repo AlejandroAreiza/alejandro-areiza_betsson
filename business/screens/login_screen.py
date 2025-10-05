@@ -8,8 +8,10 @@ class LoginScreen:
     LOGIN_BUTTON = (AppiumBy.ACCESSIBILITY_ID, "test-LOGIN")
     SCREEN_NAME = (AppiumBy.ACCESSIBILITY_ID, "test-Login")
     POP_UP_ERROR = (AppiumBy.ACCESSIBILITY_ID, "test-Error message")
-    ERROR_MESSAGE = (AppiumBy.XPATH, 
-        '//*[@content-desc="test-Error message"]//android.widget.TextView')
+    ERROR_MESSAGE = (
+        AppiumBy.XPATH,
+        '//*[@content-desc="test-Error message"]//android.widget.TextView',
+    )
 
     def __init__(self, driver: MobileDriver):
         self.driver = driver
@@ -21,13 +23,13 @@ class LoginScreen:
 
     def is_login_screen_visible(self) -> bool:
         return self.driver.is_element_visible(self.USERNAME_INPUT)
-    
+
     def is_login_button_visible(self) -> bool:
         return self.driver.is_element_visible(self.LOGIN_BUTTON)
-    
+
     def is_error_message_visible(self) -> bool:
         return self.driver.is_element_visible(self.POP_UP_ERROR)
-    
+
     def get_error_message(self) -> str:
         text = self.driver.get_text(self.ERROR_MESSAGE)
         return text
