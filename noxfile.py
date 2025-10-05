@@ -1,15 +1,20 @@
 import nox
 import os
 import platform
+import sys
 from pathlib import Path
 
 
 @nox.session(python=False)
 def install(session):
     """Install project dependencies."""
-    session.run("python3", "-m", "venv", ".venv", silent=True)
-    session.run(".venv/bin/pip", "install", "--upgrade", "pip", silent=True)
-    session.run(".venv/bin/pip", "install", "-e", ".[dev]")
+    is_windows = platform.system() == "Windows"
+    venv_python = ".venv\\Scripts\\python.exe" if is_windows else ".venv/bin/python"
+    venv_pip = ".venv\\Scripts\\pip.exe" if is_windows else ".venv/bin/pip"
+
+    session.run(sys.executable, "-m", "venv", ".venv", silent=True)
+    session.run(venv_pip, "install", "--upgrade", "pip", silent=True)
+    session.run(venv_pip, "install", "-e", ".[dev]")
 
 
 @nox.session(python=False)
@@ -20,8 +25,9 @@ def verify_requirements(session):
     print("=" * 40)
     print()
 
+    python_cmd = "python" if platform.system() == "Windows" else "python3"
     requirements = {
-        "Python": ["python3", "--version"],
+        "Python": [python_cmd, "--version"],
         "Java JDK": ["java", "-version"],
         "Node.js": ["node", "--version"],
         "npm": ["npm", "--version"],
@@ -81,6 +87,8 @@ def create_emulator(session):
     print("=" * 40)
     print()
 
+    is_windows = platform.system() == "Windows"
+
     print("Detecting system architecture...")
     arch = platform.machine().lower()
 
@@ -116,11 +124,18 @@ def create_emulator(session):
         print("⚠️  Emulator 'test_pixel_35' already exists")
     else:
         print("Creating emulator 'test_pixel_35'...")
-        session.run(
-            "bash", "-c",
-            f'echo "no" | avdmanager create avd -n test_pixel_35 -k "{system_image}" -d "pixel"',
-            external=True, silent=True
-        )
+        if is_windows:
+            session.run(
+                "powershell", "-Command",
+                f'echo "no" | avdmanager create avd -n test_pixel_35 -k "{system_image}" -d "pixel"',
+                external=True, silent=True
+            )
+        else:
+            session.run(
+                "bash", "-c",
+                f'echo "no" | avdmanager create avd -n test_pixel_35 -k "{system_image}" -d "pixel"',
+                external=True, silent=True
+            )
         print()
         print("=" * 40)
         print("✅ Emulator 'test_pixel_35' created!")
@@ -132,10 +147,14 @@ def create_emulator(session):
 @nox.session(python=False)
 def start_emulator(session):
     """Start Android emulator."""
+    import time
+
     print("=" * 40)
     print("Starting Android Emulator...")
     print("=" * 40)
     print()
+
+    is_windows = platform.system() == "Windows"
 
     print("Checking for running emulators...")
     result = session.run("adb", "devices", silent=True, external=True)
@@ -151,25 +170,41 @@ def start_emulator(session):
     print("Starting emulator 'test_pixel_35'...")
 
     headless = "--headless" in session.posargs
-    if headless:
-        print("Starting in HEADLESS mode...")
-        session.run(
-            "bash", "-c",
-            "emulator -avd test_pixel_35 -no-window -no-audio -no-boot-anim > /dev/null 2>&1 &",
-            external=True, silent=True
-        )
+    if is_windows:
+        if headless:
+            print("Starting in HEADLESS mode...")
+            session.run(
+                "powershell", "-Command",
+                "Start-Process emulator -ArgumentList '-avd','test_pixel_35','-no-window','-no-audio','-no-boot-anim' -WindowStyle Hidden",
+                external=True, silent=True
+            )
+        else:
+            print("Starting emulator...")
+            session.run(
+                "powershell", "-Command",
+                "Start-Process emulator -ArgumentList '-avd','test_pixel_35' -WindowStyle Hidden",
+                external=True, silent=True
+            )
     else:
-        print("Starting emulator...")
-        session.run(
-            "bash", "-c",
-            "emulator -avd test_pixel_35 > /dev/null 2>&1 &",
-            external=True, silent=True
-        )
+        if headless:
+            print("Starting in HEADLESS mode...")
+            session.run(
+                "bash", "-c",
+                "emulator -avd test_pixel_35 -no-window -no-audio -no-boot-anim > /dev/null 2>&1 &",
+                external=True, silent=True
+            )
+        else:
+            print("Starting emulator...")
+            session.run(
+                "bash", "-c",
+                "emulator -avd test_pixel_35 > /dev/null 2>&1 &",
+                external=True, silent=True
+            )
 
     print()
     print("Waiting for emulator to boot...")
     session.run("adb", "wait-for-device", external=True, silent=True)
-    session.run("sleep", "5", external=True, silent=True)
+    time.sleep(5)
 
     result = session.run(
         "adb", "shell", "getprop", "sys.boot_completed",
@@ -189,10 +224,14 @@ def start_emulator(session):
 @nox.session(python=False)
 def stop_emulator(session):
     """Stop running Android emulator."""
+    import time
+
     print("=" * 40)
     print("Stopping Android Emulator...")
     print("=" * 40)
     print()
+
+    is_windows = platform.system() == "Windows"
 
     result = session.run("adb", "devices", silent=True, external=True)
     if "emulator" not in str(result):
@@ -200,30 +239,53 @@ def stop_emulator(session):
         return
 
     print("Running emulators:")
-    session.run("bash", "-c", "adb devices | grep emulator", external=True)
+    if is_windows:
+        session.run("powershell", "-Command", "adb devices | Select-String emulator", external=True)
+    else:
+        session.run("bash", "-c", "adb devices | grep emulator", external=True)
     print()
 
-    session.run(
-        "bash", "-c",
-        "for device in $(adb devices | grep emulator | awk '{print $1}'); do adb -s $device emu kill 2>/dev/null; done",
-        external=True, silent=True
-    )
-    session.run("sleep", "2", external=True, silent=True)
+    if is_windows:
+        session.run(
+            "powershell", "-Command",
+            "$devices = adb devices | Select-String 'emulator' | ForEach-Object { $_.Line.Split()[0] }; foreach ($device in $devices) { adb -s $device emu kill 2>$null }",
+            external=True, silent=True
+        )
+    else:
+        session.run(
+            "bash", "-c",
+            "for device in $(adb devices | grep emulator | awk '{print $1}'); do adb -s $device emu kill 2>/dev/null; done",
+            external=True, silent=True
+        )
+    time.sleep(2)
     print()
     print("✅ Emulator(s) stopped!")
 
 @nox.session(python=False)
 def start_appium(session):
     """Start Appium server."""
+    import time
+
     print("=" * 40)
     print("Starting Appium Server...")
     print("=" * 40)
     print()
 
-    result = session.run(
-        "pgrep", "-f", "appium",
-        silent=True, external=True, success_codes=[0, 1]
-    )
+    is_windows = platform.system() == "Windows"
+
+    # Check if Appium is already running
+    if is_windows:
+        result = session.run(
+            "powershell", "-Command",
+            "Get-Process | Where-Object { $_.ProcessName -like '*appium*' -or $_.CommandLine -like '*appium*' }",
+            silent=True, external=True, success_codes=[0, 1]
+        )
+    else:
+        result = session.run(
+            "pgrep", "-f", "appium",
+            silent=True, external=True, success_codes=[0, 1]
+        )
+
     if result and result.strip():
         print("✅ Appium server already running!")
         print("To stop it, run: nox -s stop_appium")
@@ -232,17 +294,34 @@ def start_appium(session):
     print("Starting Appium server on http://127.0.0.1:4723...")
     Path("reports/logs").mkdir(parents=True, exist_ok=True)
 
-    session.run(
-        "bash", "-c",
-        "appium > reports/logs/appium.log 2>&1 & echo $! > /tmp/appium.pid",
-        external=True, silent=True
-    )
-    session.run("sleep", "3", external=True, silent=True)
+    if is_windows:
+        session.run(
+            "powershell", "-Command",
+            "Start-Process appium -RedirectStandardOutput reports\\logs\\appium.log -RedirectStandardError reports\\logs\\appium.log -WindowStyle Hidden",
+            external=True, silent=True
+        )
+    else:
+        session.run(
+            "bash", "-c",
+            "appium > reports/logs/appium.log 2>&1 & echo $! > /tmp/appium.pid",
+            external=True, silent=True
+        )
 
-    result = session.run(
-        "pgrep", "-f", "appium",
-        silent=True, external=True, success_codes=[0, 1]
-    )
+    time.sleep(3)
+
+    # Verify Appium started
+    if is_windows:
+        result = session.run(
+            "powershell", "-Command",
+            "Get-Process | Where-Object { $_.ProcessName -like '*appium*' }",
+            silent=True, external=True, success_codes=[0, 1]
+        )
+    else:
+        result = session.run(
+            "pgrep", "-f", "appium",
+            silent=True, external=True, success_codes=[0, 1]
+        )
+
     if result and result.strip():
         print()
         print("✅ Appium server started successfully!")
@@ -258,56 +337,87 @@ def start_appium(session):
 @nox.session(python=False)
 def stop_appium(session):
     """Stop Appium server."""
+    import time
+
     print("=" * 40)
     print("Stopping Appium Server...")
     print("=" * 40)
     print()
 
-    result = session.run(
-        "bash", "-c", "pgrep -f appium 2>/dev/null || true",
-        silent=True, external=True
-    )
+    is_windows = platform.system() == "Windows"
+
+    if is_windows:
+        result = session.run(
+            "powershell", "-Command",
+            "Get-Process | Where-Object { $_.ProcessName -like '*appium*' }",
+            silent=True, external=True, success_codes=[0, 1]
+        )
+    else:
+        result = session.run(
+            "bash", "-c", "pgrep -f appium 2>/dev/null || true",
+            silent=True, external=True
+        )
+
     if not result or not result.strip():
         print("✅ Appium server not running (already stopped)")
         return
 
     print("Stopping Appium server...")
-    session.run(
-        "bash", "-c",
-        "pkill -f appium 2>/dev/null || true; rm -f /tmp/appium.pid; sleep 1",
-        external=True, silent=True
-    )
+    if is_windows:
+        session.run(
+            "powershell", "-Command",
+            "Get-Process | Where-Object { $_.ProcessName -like '*appium*' } | Stop-Process -Force",
+            external=True, silent=True
+        )
+    else:
+        session.run(
+            "bash", "-c",
+            "pkill -f appium 2>/dev/null || true; rm -f /tmp/appium.pid",
+            external=True, silent=True
+        )
+
+    time.sleep(1)
     print()
     print("✅ Appium server stopped!")
 
 @nox.session(python=False)
 def lint(session):
     """Run flake8 linter."""
+    is_windows = platform.system() == "Windows"
+    flake8_cmd = ".venv\\Scripts\\flake8.exe" if is_windows else ".venv/bin/flake8"
+
     print("=" * 40)
     print("Running Flake8 Linter...")
     print("=" * 40)
-    session.run(".venv/bin/flake8", "config/")
+    session.run(flake8_cmd, "config/")
     print("✅ Linting passed!")
 
 @nox.session(python=False)
 def format(session):
     """Format code with isort and black."""
+    is_windows = platform.system() == "Windows"
+    isort_cmd = ".venv\\Scripts\\isort.exe" if is_windows else ".venv/bin/isort"
+    black_cmd = ".venv\\Scripts\\black.exe" if is_windows else ".venv/bin/black"
+
     print("=" * 40)
     print("Formatting Code...")
     print("=" * 40)
     print("\n📦 Sorting imports with isort...")
-    session.run(".venv/bin/isort", "config/", "business/", "tests/")
+    session.run(isort_cmd, "config/", "business/", "tests/")
     print("\n🎨 Formatting with black...")
-    session.run(".venv/bin/black", "config/", "business/", "tests/")
+    session.run(black_cmd, "config/", "business/", "tests/")
     print("✅ Formatting complete!")
 
 @nox.session(python=False)
 def type_check(session):
     """Run mypy type checking."""
+    is_windows = platform.system() == "Windows"
+    mypy_cmd = ".venv\\Scripts\\mypy.exe" if is_windows else ".venv/bin/mypy"
+
     print("=" * 40)
     print("Running MyPy Type Checking...")
     print("=" * 40)
-    session.run(".venv/bin/mypy", "--explicit-package-bases", "config/")
+    session.run(mypy_cmd, "--explicit-package-bases", "config/")
     print("✅ Type checking passed!")
 
 @nox.session(python=False)
@@ -331,6 +441,9 @@ def run_test(session):
         nox -s run_test -- basic "Launch app"              # Run specific scenario by name
         nox -s run_test -- login "Successful login"        # Run specific scenario in login.feature
     """
+    is_windows = platform.system() == "Windows"
+    behave_cmd = ".venv\\Scripts\\behave.exe" if is_windows else ".venv/bin/behave"
+
     if session.posargs:
         # Get test name from arguments
         test_name = session.posargs[0]
@@ -345,49 +458,58 @@ def run_test(session):
         if len(session.posargs) > 1:
             scenario_name = session.posargs[1]
             print(f"Running scenario '{scenario_name}' in {test_path}")
-            session.run(".venv/bin/behave", test_path, "-n", scenario_name, "-v", "--no-capture")
+            session.run(behave_cmd, test_path, "-n", scenario_name, "-v", "--no-capture")
         else:
             print(f"Running test: {test_path}")
-            session.run(".venv/bin/behave", test_path, "-v", "--no-capture")
+            session.run(behave_cmd, test_path, "-v", "--no-capture")
     else:
         print("Running all tests...")
-        session.run(".venv/bin/behave", "tests/features/", "-v", "--no-capture")
+        session.run(behave_cmd, "tests/features/", "-v", "--no-capture")
 
 
 @nox.session(python=False)
 def clean(session):
     """Clean the environment, removes reports and logs."""
+    import shutil
+
     print("Cleaning environment...")
 
-    session.run(
-        "bash", "-c",
-        'find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true',
-        external=True, silent=True
-    )
-    session.run(
-        "bash", "-c",
-        'find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null || true',
-        external=True, silent=True
-    )
-    session.run(
-        "bash", "-c",
-        'find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true',
-        external=True, silent=True
-    )
-    session.run(
-        "bash", "-c",
-        "rm -rf reports/ allure-results/ allure-report/",
-        external=True, silent=True
-    )
-    session.run(
-        "bash", "-c",
-        'find . -type f -name "*.pyc" -delete',
-        external=True, silent=True
-    )
-    session.run(
-        "bash", "-c",
-        'find . -type f -name "*.log" -delete',
-        external=True, silent=True
-    )
-    session.run("rm", "-rf", ".venv", external=True, silent=True)
+    is_windows = platform.system() == "Windows"
+
+    # Clean __pycache__, .mypy_cache, .pytest_cache directories
+    cache_dirs = ["__pycache__", ".mypy_cache", ".pytest_cache"]
+    for root, dirs, files in os.walk("."):
+        for dir_name in dirs:
+            if dir_name in cache_dirs:
+                dir_path = os.path.join(root, dir_name)
+                try:
+                    shutil.rmtree(dir_path)
+                except Exception:
+                    pass
+
+    # Clean reports and allure directories
+    for dir_path in ["reports", "allure-results", "allure-report"]:
+        if os.path.exists(dir_path):
+            try:
+                shutil.rmtree(dir_path)
+            except Exception:
+                pass
+
+    # Clean .pyc and .log files
+    for root, dirs, files in os.walk("."):
+        for file in files:
+            if file.endswith((".pyc", ".log")):
+                file_path = os.path.join(root, file)
+                try:
+                    os.remove(file_path)
+                except Exception:
+                    pass
+
+    # Clean .venv
+    if os.path.exists(".venv"):
+        try:
+            shutil.rmtree(".venv")
+        except Exception:
+            pass
+
     print("✅ Environment cleaned (including .venv)!")

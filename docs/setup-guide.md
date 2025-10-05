@@ -1,6 +1,6 @@
-# Complete Setup Guide
+# Complete Setup-Guide
 
-Comprehensive installation and configuration guide for the Swag Labs Test Automation Framework.
+**Installation and configuration guide for the Swag Labs Test Automation Framework**
 
 ---
 

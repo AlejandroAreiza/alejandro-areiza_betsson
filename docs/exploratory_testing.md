@@ -1,5 +1,5 @@
 # Swag Labs App - Exploratory Testing
-**Findings and risk analysis for Swag Labs e-commerce Android app using Actor-Based Approach**
+**Findings and risk analysis for Swag Labs app using Actor-Based Approach**
 
 ---
 
@@ -179,7 +179,6 @@ Sort order persists across view changes ✅
 - No quantity selector available
 - Attempting to add again has no effect - dragging is block
 
----
 
 ### Sorting Functionality
 
