@@ -61,14 +61,14 @@ Feature: User Authentication - Negative Scenarios
     And I should remain on the login screen
 
     Examples:
-      | user_name       | user_password | error_text                           |
-      | invalid_user    | secret_sauce  | Username and password do not match   |
-      | standard_user   | wrong_pass    | Username and password do not match   |
-      | STANDARD_USER   | secret_sauce  | Username and password do not match   |
-      |                 | secret_sauce  | Username is required                 |
-      | standard_user   |               | Password is required                 |
-      |                 |               | Username and password are required   |
-      | locked_out_user | secret_sauce  | Sorry, this user has been locked out |
+      | user_name       | user_password | error_text                                                      |
+      | invalid_user    | secret_sauce  | Username and password do not match any user in this service     |
+      | standard_user   | wrong_pass    | Username and password do not match any user in this service     |
+      | STANDARD_USER   | secret_sauce  | Username and password do not match any user in this service     |
+      |    <empty>      | secret_sauce  | Username is required                                            |
+      | standard_user   |    <empty>    | Password is required                                            |
+      |    <empty>      |    <empty>    | Username is required                                            |
+      | locked_out_user | secret_sauce  | Sorry, this user has been locked out                            |
 ```
 
 ---

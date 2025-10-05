@@ -106,9 +106,9 @@ class AndroidMobileDriver(MobileDriver):
     def find_element(self, locator):
         """Find element by locator with fluent wait for visibility."""
         try:
-            element = self._wait.until(EC.visibility_of_element_located(locator))
+            self.element = self._wait.until(EC.visibility_of_element_located(locator))
             self.logger.info(f"Element found and visible: {locator}")
-            return element
+            return self.element
         except TimeoutException:
             self.logger.error(
                 f"Timeout waiting for element {locator} to be visible", exc_info=True
@@ -131,14 +131,14 @@ class AndroidMobileDriver(MobileDriver):
     def is_element_visible(self, locator):
         """Check if element is visible."""
         try:
-            element = self._wait.until(EC.visibility_of_element_located(locator))
+            self._wait.until(EC.visibility_of_element_located(locator))
             self.logger.info(f"Element {locator} is visible")
             return True
         except TimeoutException:
             self.logger.info(f"Element {locator} is not visible (timeout)")
             return False
         except Exception as e:
-            self.logger.warning(f"Error checking visibility of element {locator}: {e}")
+            self.logger.info(f"Error checking visibility of element {locator}: {e}")
             return False
 
     def click(self, locator):
