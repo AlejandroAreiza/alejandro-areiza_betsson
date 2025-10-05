@@ -13,3 +13,4 @@ class DesiredCapabilitiesDto:
     fullReset: bool
     newCommandTimeout: int
     autoGrantPermissions: bool
+    headless: bool = True

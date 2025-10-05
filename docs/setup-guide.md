@@ -28,8 +28,20 @@
 ---
 
 ## Installation Steps
+⚠️ **Only for Windows users**: Open PowerShell as Administrator
+```powershell
+# Install Chocolatey (Windows Package Manager)
+Set-ExecutionPolicy Bypass -Scope Process -Force; `
+[System.Net.ServicePointManager]::SecurityProtocol = `
+    [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; `
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
+# Verify installation
+choco --version
+```
 ### 1. Clone this repository:
+
+**Precondition:** Install git
 
 ```bash
 git clone https://github.com/AlejandroAreiza/alejandro-areiza_betsson.git
@@ -93,22 +105,23 @@ java -version  # Should show version 11 or higher
 
 ---
 
-### 2. Install Node.js & npm 18+
+### 2. Install Node.js & npm
 
 **macOS (using Homebrew):**
 ```bash
-brew install node@18
+#Install Node.js (LTS) & npm
+brew install node
 ```
 
 **Windows (using Chocolatey):**
 ```bash
-choco install nodejs --version=18.0.0
+#Install Node.js (LTS) & npm
+choco install nodejs-lts
 ```
 
 **Verify installation:**
 ```bash
-node --version  # Should show v18.x.x
-npm --version
+node --version && npm --version
 ```
 
 ---

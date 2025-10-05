@@ -17,10 +17,8 @@ class LoginScreen:
         self.driver.click(self.LOGIN_BUTTON)
         return self
 
-    def get_screen_title(self) -> str:
-        """Get the login screen title text."""
-        return self.driver.get_text(self.SCREEN_NAME)
-
     def is_login_screen_visible(self) -> bool:
-        """Check if login screen is visible."""
         return self.driver.is_element_visible(self.USERNAME_INPUT)
+    
+    def is_login_button_visible(self) -> bool:
+        return self.driver.is_element_visible(self.LOGIN_BUTTON)

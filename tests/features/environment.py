@@ -23,11 +23,20 @@ def before_all(context):
     try:
         subprocess.run(["nox", "-s", "start_appium"], check=True)
         logger.info("Appium server started")
-        subprocess.run(["nox", "-s", "start_emulator", "--", "--headless"], check=True)
-        logger.info("Android emulator started")
+
+        # Load capabilities to check headless setting
         capabilities = DataProvider.get_data(
             desired_capabilities_path, DesiredCapabilitiesDto
         )
+
+        # Start emulator with headless flag based on capabilities
+        emulator_cmd = ["nox", "-s", "start_emulator"]
+        if hasattr(capabilities, 'headless') and capabilities.headless:
+            emulator_cmd.extend(["--", "--headless"])
+
+        subprocess.run(emulator_cmd, check=True)
+        logger.info("Android emulator started")
+
         capabilities.app = str((app_folder / capabilities.app).absolute())
         context.driver = MobileDriverFactory.create_driver(capabilities)
     except Exception as e:
