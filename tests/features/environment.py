@@ -1,12 +1,11 @@
 import allure
-
 from tests.features import (
     DataProvider,
     DesiredCapabilitiesDto,
     Logger,
     MobileDriverFactory,
     Path,
-    subprocess,
+    subprocess
 )
 
 logger = Logger.get_logger(__name__)

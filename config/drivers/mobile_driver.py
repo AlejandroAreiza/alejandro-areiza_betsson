@@ -1,4 +1,5 @@
 from config.drivers import ABC, List, WebDriver, WebElement, abstractmethod
+from config.dto import Direction
 
 
 class MobileDriver(ABC):
@@ -18,14 +19,6 @@ class MobileDriver(ABC):
 
     @abstractmethod
     def reset(self) -> None:
-        pass
-
-    @abstractmethod
-    def get_current_activity(self) -> str:
-        pass
-
-    @abstractmethod
-    def navigate_to(self, url: str) -> None:
         pass
 
     @abstractmethod
@@ -53,5 +46,5 @@ class MobileDriver(ABC):
         pass
 
     @abstractmethod
-    def wait_until_page_load(self, page_title: str) -> None:
+    def swipe(self, locator, direction: Direction) -> None:
         pass

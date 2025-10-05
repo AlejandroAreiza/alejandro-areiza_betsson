@@ -1,7 +1,5 @@
-import allure
-
 from business.screens.swap_labs import SwapLabs
-from tests.features.steps import assert_that, given, then, when
+from tests.features.steps import assert_that, given, then, when, allure
 
 
 def _swap_labs(context) -> SwapLabs:
@@ -50,9 +48,3 @@ def step_verify_error_message_visible(context):
 def step_verify_error_message_text(context, error_text):
     actual_error = _swap_labs(context).login_screen.get_error_message()
     assert_that(actual_error).contains(error_text)
-
-
-@then("I should remain on the login screen")
-def step_verify_remain_on_login_screen(context):
-    is_login_visible = _swap_labs(context).login_screen.is_login_screen_visible()
-    assert_that(is_login_visible).is_true()

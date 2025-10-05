@@ -2,6 +2,7 @@ from config.drivers.ios_driver import MobileDriver
 
 
 class IosMobileDriver(MobileDriver):
+    
     def create_mobile_driver(self, config):
         raise NotImplementedError
 
@@ -13,12 +14,6 @@ class IosMobileDriver(MobileDriver):
         raise NotImplementedError
 
     def reset(self):
-        raise NotImplementedError
-
-    def get_current_activity(self):
-        raise NotImplementedError
-
-    def navigate_to(self, url):
         raise NotImplementedError
 
     def find_element(self, locator):
@@ -39,5 +34,6 @@ class IosMobileDriver(MobileDriver):
     def get_text(self, locator):
         raise NotImplementedError
 
-    def wait_until_page_load(self, page_title):
+    def swipe(self, locator, direction):
         raise NotImplementedError
+
